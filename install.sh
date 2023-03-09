@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -x
 # #############################################################################
 # Copyright (C) 2016 - 2022 Advanced Micro Devices, Inc. All rights reserved.
 #
@@ -182,7 +183,7 @@ install_packages( )
     fi
 
     # dependencies needed for rocfft and clients to build
-    local library_dependencies_ubuntu=( "make" "cmake-curses-gui" "pkg-config" )
+    local library_dependencies_ubuntu=( "make" "cmake" "pkg-config" )
     local library_dependencies_centos=( "epel-release" "make" "cmake3" "gcc-c++" "rpm-build" )
     local library_dependencies_fedora=( "make" "cmake" "gcc-c++" "libcxx-devel" "rpm-build" )
     local library_dependencies_sles=( "make" "cmake" "gcc-c++" "gcc-fortran" "libcxxtools9" "rpm-build" )
@@ -490,6 +491,10 @@ if [[ "${build_relocatable}" == true ]]; then
        -DCMAKE_PREFIX_PATH="${rocm_path} ${rocm_path}/hipcc ${rocm_path}/hip" \
        -DCMAKE_SHARED_LINKER_FLAGS="${rocm_rpath}" \
        -DROCM_DISABLE_LDCONFIG=ON \
+       -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+       -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+       -DBUILD_CLIENTS_TESTS_OPENMP=OFF \
+       -DAMDGPU_TARGETS="gfx90a;gfx1030" \
        ../..
 else
     CXX=${compiler} CC=${compiler} ${cmake_executable} ${cmake_common_options} ${cmake_client_options} -DCPACK_SET_DESTDIR=OFF -DCMAKE_INSTALL_PREFIX=${install_prefix} -DCPACK_PACKAGING_INSTALL_PREFIX=/opt/rocm ../..
